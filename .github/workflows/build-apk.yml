@@ -10,6 +10,7 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Recuperer le projet
         uses: actions/checkout@v4
@@ -26,12 +27,21 @@ jobs:
           gradle-version: '8.9'
 
       - name: Installer Android SDK
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v4.0.2
+        with:
+          packages: 'platform-tools'
+          accept-android-sdk-licenses: true
+          log-accepted-android-sdk-licenses: false
 
       - name: Extraire le projet
         run: |
           ZIP=$(find . -maxdepth 1 -name '*.zip' -print -quit)
+          if [ -z "$ZIP" ]; then
+            echo "Fichier ZIP introuvable"
+            exit 1
+          fi
           unzip -q "$ZIP" -d extracted
+          find extracted -name settings.gradle -o -name settings.gradle.kts
 
       - name: Compiler APK
         working-directory: extracted/CalculateurBovaAndroid
